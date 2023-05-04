@@ -39,8 +39,8 @@ public class JdbcUserDao implements UserDao {
 
 	@Override
 	public User getUserById(int userId) {
-		String sql = "SELECT * FROM users WHERE user_id = ?";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+		//String sql = "SELECT * FROM users WHERE user_id = ?";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_USER_BY_ID.getSqlString(), userId);
 		if (results.next()) {
 			return mapRowToUser(results);
 		} else {
@@ -51,9 +51,9 @@ public class JdbcUserDao implements UserDao {
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String sql = "select * from users";
+       // String sql = "select * from users";
 
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        SqlRowSet results = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_ALL_USERS.getSqlString());
         while (results.next()) {
             User user = mapRowToUser(results);
             users.add(user);
@@ -76,8 +76,8 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public boolean updateFamilyName(FamilyNameDto famName){
-        String sql = "UPDATE users SET family_name = ? WHERE user_id = ?";
-        return jdbcTemplate.update(sql, famName.getFamilyName(), famName.getId()) == 1;
+       // String sql = "UPDATE users SET family_name = ? WHERE user_id = ?";
+        return jdbcTemplate.update(BeeHiveSql.UPDATE_FAMILY_NAME.getSqlString(), famName.getFamilyName(), famName.getId()) == 1;
     }
 
 
@@ -85,11 +85,11 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public boolean create(String username, String password, String role) {
-        String insertUserSql = "insert into users (username,password_hash,role) values (?,?,?)";
+        //String insertUserSql = "insert into users (username,password_hash,role) values (?,?,?)";
         String password_hash = new BCryptPasswordEncoder().encode(password);
         String ssRole = role.toUpperCase().startsWith("ROLE_") ? role.toUpperCase() : "ROLE_" + role.toUpperCase();
 
-        return jdbcTemplate.update(insertUserSql, username, password_hash, ssRole) == 1;
+        return jdbcTemplate.update(BeeHiveSql.INSERT_USER_FOR_CREATION.getSqlString(), username, password_hash, ssRole) == 1;
     }
 
     private User mapRowToUser(SqlRowSet rs) {
