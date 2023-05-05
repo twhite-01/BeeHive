@@ -3,7 +3,7 @@ package com.techelevator.dao;
 public enum BeeHiveSql {
 
 
-    //USERS
+ //---------------------------- USERS----------------------------------------------
     GET_USER_BY_ID
     (
 "SELECT user_id, username,password_hash, role,family_name" +
@@ -27,7 +27,7 @@ public enum BeeHiveSql {
          "VALUES (?,?,?)"
     ),
 
-    //Book
+    //---------------------------- BOOKS ----------------------------------------------
 
     GET_BOOK_BY_ID
     (
@@ -95,7 +95,7 @@ public enum BeeHiveSql {
             "WHERE member_id = ? AND book_id = ? "
     ),
 
-    //MEMBERS
+    //---------------------------- MEMBERS ----------------------------------------------
 
     GET_MEMBER_BY_ID
     (
@@ -104,12 +104,48 @@ public enum BeeHiveSql {
             "WHERE id = ?"
     ),
 
-    GET_MEMBER_BY_ID
+    GET_MEMBERS_BY_ID
     (
 "SELECT id, is_child, user_id, first_name, last_initial, avatar_id, pin " +
         "FROM members " +
         "WHERE user_id = ?"
+    ),
+
+    ADD_MEMBER
+    (
+"INSERT INTO members(is_child, user_id, first_name, last_initial, avatar_id, pin) " +
+        "VALUES (?, ?, ?, ?, ?, ?) RETURNING id;"
+    ),
+
+    DELETE_MEMBER_READING_ACTIVITY
+    (
+" DELETE FROM reading_activity " +
+        "WHERE member_id = ? "
+    ),
+
+    DELETE_MEMBER_BOOK
+            (
+                    " DELETE FROM  member_book " +
+                            "WHERE member_id = ? "
+            ),
+
+    DELETE_MEMBER_PRIZE_TABLE
+    (
+            " DELETE FROM member_prize " +
+                    "WHERE member_id = ? "
+    ),
+
+    DELETE_MEMBER
+    (
+            " DELETE FROM members " +
+                    "WHERE id = ? "
     );
+
+
+
+
+
+
 
 
 
