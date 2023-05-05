@@ -24,9 +24,9 @@ public class JdbcMemberDao implements MemberDao{
 
        Member member = null;
 
-        String sql = "SELECT * FROM members WHERE id = ?";
+        //String sql = "SELECT * FROM members WHERE id = ?";
 
-        SqlRowSet rowset = jdbcTemplate.queryForRowSet(sql, memberId);
+        SqlRowSet rowset = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_MEMBER_BY_ID.getSqlString(), memberId);
 
         if(rowset.next()){
             member = mapRowToMember(rowset);
@@ -44,7 +44,7 @@ public class JdbcMemberDao implements MemberDao{
                 "FROM members\n" +
                 "WHERE user_id = ?";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,userId);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_MEMBER_BY_ID.getSqlString(),userId);
 
         while(rowSet.next()){
             Member member = mapRowToMember(rowSet);
