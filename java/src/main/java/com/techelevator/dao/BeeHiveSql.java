@@ -137,10 +137,34 @@ public enum BeeHiveSql {
 
     DELETE_MEMBER
     (
-            " DELETE FROM members " +
-                    "WHERE id = ? "
-    );
+"DELETE FROM members " +
+         "WHERE id = ? "
+    ),
 
+   EDIT_MEMBER
+  (
+"UPDATE members " +
+      "SET id=?, is_child=?, user_id=?, first_name=?, last_initial=?, avatar_id=?, pin=?\n" +
+      "WHERE id = ? ; "
+  ),
+
+   MEMBER_TOTAL_MINUTES_READ
+  (
+"SELECT SUM(minutes_read) as total_mins\n" +
+         "FROM reading_activity\n" +
+         "WHERE member_id = ? AND request_status_id = 1 "
+  ),
+
+   MEMBERS_ASSIGNED_TO_PRIZE
+   (
+ "SELECT m.id, m.first_name, m.last_initial, m.is_child, m.user_id, m.avatar_id, m.pin " +
+         "FROM members m " +
+       "INNER JOIN member_prize mp " +
+       "ON m.id = mp.member_id " +
+       "WHERE mp.prize_id = ? "
+   );
+
+   //---------------------------- Prize ----------------------------------------------
 
 
 

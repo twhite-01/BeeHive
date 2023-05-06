@@ -79,7 +79,7 @@ public class JdbcMemberDao implements MemberDao{
         jdbcTemplate.update(BeeHiveSql.DELETE_MEMBER_READING_ACTIVITY.getSqlString(), memberId);
       /*  String sql1 =" DELETE FROM member_book\n" +
                 "\tWHERE member_id = ?;";*/
-        jdbcTemplate.update(BeeHiveSql.DELETE_MEMBER_BOOK.getSqlString() memberId);
+        jdbcTemplate.update(BeeHiveSql.DELETE_MEMBER_BOOK.getSqlString(),memberId);
         /*String sql2 =" DELETE FROM member_prize\n" +
                 "\tWHERE member_id = ?;";*/
         jdbcTemplate.update(BeeHiveSql.DELETE_MEMBER_PRIZE_TABLE.getSqlString(), memberId);
@@ -92,11 +92,11 @@ public class JdbcMemberDao implements MemberDao{
     @Override
     public Member editMember(Member member, int memberId){
 
-        String sql = "UPDATE members\n" +
+        /*String sql = "UPDATE members\n" +
                 "\tSET id=?, is_child=?, user_id=?, first_name=?, last_initial=?, avatar_id=?, pin=?\n" +
-                "\tWHERE id = ? ; ";
+                "\tWHERE id = ? ; ";*/
 
-        jdbcTemplate.update(sql, member.getId(), member.isChild(), member.getUserId(), member.getFirstName(), member.getLastInitial(), member.getAvatarId(), member.getPin(), memberId);
+        jdbcTemplate.update(BeeHiveSql.EDIT_MEMBER.getSqlString(), member.getId(), member.isChild(), member.getUserId(), member.getFirstName(), member.getLastInitial(), member.getAvatarId(), member.getPin(), memberId);
 
         return member;
     }
@@ -106,11 +106,11 @@ public class JdbcMemberDao implements MemberDao{
 
         MinutesReadDto result = new MinutesReadDto();
 
-        String sql = "SELECT SUM(minutes_read) as total_mins\n" +
+/*        String sql = "SELECT SUM(minutes_read) as total_mins\n" +
                             "FROM reading_activity\n" +
-                            "WHERE member_id = ? AND request_status_id = 1 ";
+                            "WHERE member_id = ? AND request_status_id = 1 ";*/
 
-         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, memberId);
+         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.MEMBER_TOTAL_MINUTES_READ.getSqlString(), memberId);
 
          if (rowSet.next()){
               result = mapRowToMinutes(rowSet);
@@ -124,12 +124,12 @@ public class JdbcMemberDao implements MemberDao{
 
         List<Member> memberNames = new ArrayList<>();
 
-        String sql = "SELECT m.id, m.first_name, m.last_initial, m.is_child, m.user_id, m.avatar_id, m.pin FROM members m\n" +
+       /* String sql = "SELECT m.id, m.first_name, m.last_initial, m.is_child, m.user_id, m.avatar_id, m.pin FROM members m\n" +
                 "INNER JOIN member_prize mp\n" +
                 "ON m.id = mp.member_id\n" +
-                "WHERE mp.prize_id = ?";
+                "WHERE mp.prize_id = ?";*/
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, prizeId);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.MEMBERS_ASSIGNED_TO_PRIZE.getSqlString(), prizeId);
 
         while(rowSet.next()) {
             Member member = mapRowToMember(rowSet);
