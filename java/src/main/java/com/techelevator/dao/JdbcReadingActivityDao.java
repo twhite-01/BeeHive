@@ -22,7 +22,7 @@ public class JdbcReadingActivityDao implements ReadingActivityDao{
         String sql = "INSERT INTO reading_activity( member_id, book_id, minutes_read, notes, format_id, request_status_id, date_read)\n " +
                 "\tVALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id; ";
 
-        Integer newReadingId = jdbcTemplate.queryForObject(sql, Integer.class, read.getMemberId(), read.getBookId(), read.getMinutesRead(),
+        Integer newReadingId = jdbcTemplate.queryForObject(BeeHiveSql.ADD_READING_ACTIVITY.getSqlString(), Integer.class, read.getMemberId(), read.getBookId(), read.getMinutesRead(),
                 read.getNotes(), read.getFormatId(), read.getRequestId(), read.getDateRead());
 
         return newReadingId;
@@ -35,7 +35,7 @@ public class JdbcReadingActivityDao implements ReadingActivityDao{
         String sql = "SELECT * FROM reading_activity \n" +
                 "WHERE member_id = ? ";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,memberId);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.MEMBER_FULL_ACTIVITY_LIST.getSqlString(),memberId);
 
         while(rowSet.next()){
             ReadingActivity read = mapRowToRead(rowSet);
@@ -50,7 +50,7 @@ public class JdbcReadingActivityDao implements ReadingActivityDao{
                 "\tSET member_id=?, book_id=?, minutes_read=?, notes=?, format_id=?, request_status_id=?, date_read=?\n" +
                 "\tWHERE id = ?;";
 
-         jdbcTemplate.update(sql, read.getMemberId(), read.getBookId(),
+         jdbcTemplate.update(BeeHiveSql.EDIT_ACTIVITY.getSqlString(), read.getMemberId(), read.getBookId(),
                 read.getMinutesRead(), read.getNotes(), read.getFormatId(), read.getRequestId(), read.getDateRead(), read.getId());
 
 
@@ -62,7 +62,7 @@ public class JdbcReadingActivityDao implements ReadingActivityDao{
     public Boolean deleteActivity(int readingId) {
         String sql = "DELETE FROM reading_activity\n" +
                 "\tWHERE id = ? ";
-        jdbcTemplate.update(sql,readingId);
+        jdbcTemplate.update(BeeHiveSql.DELETE_ACTIVITY.getSqlString(),readingId);
         return true;
     }
 
@@ -76,7 +76,7 @@ public class JdbcReadingActivityDao implements ReadingActivityDao{
                 "INNER JOIN members me ON ra.member_id = me.id\n" +
                 "WHERE user_id = ? AND request_status_id = 2";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userId);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.PENDING_READING_LIST.getSqlString(), userId);
 
         while(rowSet.next()){
             ReadingActivity read = mapRowToRead(rowSet);

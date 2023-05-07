@@ -23,9 +23,9 @@ public class JdbcPrizeDao implements PrizeDao {
 
         Prize prize = new Prize();
 
-        String sql = "SELECT * FROM prize WHERE id = ?";
+        //String sql = "SELECT * FROM prize WHERE id = ?";
 
-        SqlRowSet rowset = jdbcTemplate.queryForRowSet(sql, prizeId);
+        SqlRowSet rowset = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_PRIZE_BY_ID.getSqlString(), prizeId);
 
         if(rowset.next()){
             prize = mapRowToPrize(rowset);
@@ -44,7 +44,7 @@ public class JdbcPrizeDao implements PrizeDao {
                     "ON p.id = mp.prize_id\n" +
                     "WHERE mp.member_id = ? ;";
 
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, memberId);
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_PRIZE_BY_MEMBER_ID.getSqlString(), memberId);
 
         while(rowSet.next()){
             Prize prize = mapRowToPrize(rowSet);
@@ -61,7 +61,7 @@ public class JdbcPrizeDao implements PrizeDao {
 
         String sql = "SELECT * FROM prize WHERE user_id = ?";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,userId);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_PRIZES_BY_USER.getSqlString(),userId);
 
         while(rowSet.next()){
             Prize prize = mapRowToPrize(rowSet);
@@ -77,7 +77,7 @@ public class JdbcPrizeDao implements PrizeDao {
                 "FROM member_prize\n" +
                 "WHERE member_id = ? AND prize_id = ?";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, memberPrizeDto.getMemberId(), memberPrizeDto.getPrizeId());
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.CHECK_PRIZE_EXISTS.getSqlString(), memberPrizeDto.getMemberId(), memberPrizeDto.getPrizeId());
 
         if(rowSet.next()){
             doesExist = true;
@@ -99,15 +99,18 @@ public class JdbcPrizeDao implements PrizeDao {
         String sql = "INSERT INTO member_prize(\n" +
                 "\tmember_id, prize_id, prize_status_id)\n" +
                 "\tVALUES (?, ?, ?);";
-        return jdbcTemplate.update(sql, memberPrizeDto.getMemberId(), memberPrizeDto.getPrizeId(), memberPrizeDto.getPrizeStatusId()) == 1;
+        return jdbcTemplate.update(BeeHiveSql.EDIT_MEMBER_PRIZE_COMPLETED.getSqlString(), memberPrizeDto.getMemberId(),
+                memberPrizeDto.getPrizeId(), memberPrizeDto.getPrizeStatusId()) == 1;
     }
 
+    //Todo does this exist?
     @Override
     public boolean parentEditPrize(int prizeId) {
-        String sql ="SELECT * FROM members m\n" +
+    /*    String sql ="SELECT * FROM members m\n" +
                 "INNER JOIN member_prize mp\n" +
                 "ON m.id = mp.member_id\n" +
-                "WHERE mp.prize_id = ?";
+                "WHERE mp.prize_id = ?";*/
+        BeeHiveSql.PARENT_EDIT_PRIZE.getSqlString();
 
         return false;
     }
@@ -117,7 +120,10 @@ public class JdbcPrizeDao implements PrizeDao {
         String sql = "INSERT INTO prize (prize_name, description, goal_minutes, user_id, max_winners, current_winners, start_date, end_date, is_active) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id;";
 
-        Integer newPrizeId = jdbcTemplate.queryForObject(sql, Integer.class, prize.getPrizeName(), prize.getDescription(), prize.getGoalInMinutes(), prize.getUserId(), prize.getMaxWinners(), prize.getCurrentWinners(), prize.getStartDate(), prize.getEndDate(), prize.isActive());
+        Integer newPrizeId = jdbcTemplate.queryForObject(BeeHiveSql.ADD_PRIZE.getSqlString(), Integer.class,
+                prize.getPrizeName(), prize.getDescription(), prize.getGoalInMinutes(),
+                prize.getUserId(), prize.getMaxWinners(), prize.getCurrentWinners(), prize.getStartDate(),
+                prize.getEndDate(), prize.isActive());
 
         return newPrizeId;
 
@@ -138,7 +144,7 @@ public class JdbcPrizeDao implements PrizeDao {
                 "\tSET id=?, prize_name=?, description=?, goal_minutes=?, user_id=?, max_winners=?, current_winners=?, start_date=?, end_date=?, is_active=?\n" +
                 "\tWHERE id = ?;";
 
-         jdbcTemplate.update(sql, prize.getId(), prize.getPrizeName(), prize.getDescription(), prize.getGoalInMinutes(), prize.getUserId(), prize.getMaxWinners(), prize.getCurrentWinners(), prize.getStartDate(), prize.getEndDate(), prize.isActive(), prizeId );
+         jdbcTemplate.update(BeeHiveSql.DELETE_PRIZE.getSqlString(), prize.getId(), prize.getPrizeName(), prize.getDescription(), prize.getGoalInMinutes(), prize.getUserId(), prize.getMaxWinners(), prize.getCurrentWinners(), prize.getStartDate(), prize.getEndDate(), prize.isActive(), prizeId );
 
          return prize;
     }
@@ -154,7 +160,7 @@ public class JdbcPrizeDao implements PrizeDao {
                 "INNER JOIN prize p ON p.id = mp.prize_id\n" +
                 "WHERE ra.date_read >= p.start_date AND ra.date_read <= p.end_date AND p.is_active = true AND mp.prize_status_id = 2 AND ra.member_id = ? AND p.id = ?";
 
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, memberId, prizeId);
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.GET_MINUTES_TOWARD_PRIZE.getSqlString(), memberId, prizeId);
 
             if(rowSet.next()){
                 result.setMinutesRead(rowSet.getInt("total_mins"));
@@ -167,7 +173,7 @@ public class JdbcPrizeDao implements PrizeDao {
     public boolean addToMemberPrizeTable(int memberId, int prizeId){
 
         String sql = "INSERT INTO member_prize (member_id, prize_id, prize_status_id) VALUES (?, ?, ?)";
-        return jdbcTemplate.update(sql, memberId, prizeId, 2) == 1;
+        return jdbcTemplate.update(BeeHiveSql.ADD_TO_MEMBER_PRIZE_TABLE.getSqlString(), memberId, prizeId, 2) == 1;
 
 
     }
@@ -178,7 +184,7 @@ public class JdbcPrizeDao implements PrizeDao {
 
         String sql = "Select id from prize where id = ?";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,prize.getId());
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(BeeHiveSql.CHECK_FOR_PRIZE.getSqlString(),prize.getId());
 
         if(rowSet.next()){
             doesExist = true;
